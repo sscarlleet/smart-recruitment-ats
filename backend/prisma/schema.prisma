@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CANDIDATE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobsCreated              Job[]
+  applications             Application[]              @relation("ApplicationCandidate")
+  applicationStatusChanges ApplicationStatusHistory[] @relation("ApplicationStatusChangedBy")
+  candidateProfile         CandidateProfile?
+}
+
+enum Role {
+  ADMIN
+  HR
+  CANDIDATE
+}
+
+enum JobStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  ARCHIVED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  SELECTED
+  OFFERED
+  REJECTED
+  WITHDRAWN
+}
+
+model Job {
+  id             String         @id @default(uuid())
+  title          String
+  department     String
+  location       String
+  description    String
+  employmentType EmploymentType
+  salaryMin      Int?
+  salaryMax      Int?
+  status         JobStatus      @default(DRAFT)
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  applications Application[]
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Application {
+  id          String            @id @default(uuid())
+  candidateId String
+  jobId       String
+  coverLetter String?
+  status      ApplicationStatus @default(APPLIED)
+
+  candidate User @relation("ApplicationCandidate", fields: [candidateId], references: [id])
+  job       Job  @relation(fields: [jobId], references: [id])
+
+  statusHistory ApplicationStatusHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([candidateId, jobId])
+  @@index([candidateId])
+  @@index([jobId])
+  @@index([status])
+}
+
+model ApplicationStatusHistory {
+  id            String             @id @default(uuid())
+  applicationId String
+  changedById   String
+  fromStatus    ApplicationStatus?
+  toStatus      ApplicationStatus
+  note          String?
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  changedBy   User        @relation("ApplicationStatusChangedBy", fields: [changedById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([applicationId])
+}
+
+model CandidateProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  phone        String?
+  location     String?
+  headline     String?
+  summary      String?
+  linkedinUrl  String?
+  portfolioUrl String?
+  skills       String[] @default([])
+
+  // Resume file metadata (the actual file is stored privately)
+  resumeOriginalName String?
+  resumeStoredName   String?
+  resumeMimeType     String?
+  resumeSize         Int?
+  resumeUploadedAt   DateTime?
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  education Education[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Education {
+  id        String @id @default(uuid())
+  profileId String
+
+  institution  String
+  degree       String
+  fieldOfStudy String?
+  startYear    Int?
+  endYear      Int?
+  grade        String?
+  description  String?
+
+  profile CandidateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+}
