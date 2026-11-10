@@ -1,0 +1,87 @@
+/* Pipeline Kanban board */
+
+.pipeline-board {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  align-items: flex-start;
+}
+
+.pipeline-col {
+  min-width: 190px;
+  max-width: 210px;
+  flex-shrink: 0;
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.pipeline-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--white);
+  border-top: 3px solid #ccc;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.pipeline-col-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-700);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pipeline-col-count {
+  background: var(--gray-200);
+  color: var(--gray-600);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+.pipeline-cards {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 80px;
+}
+
+.pipeline-empty {
+  font-size: 12px;
+  color: var(--gray-400);
+  text-align: center;
+  padding: 16px 0;
+}
+
+.pipeline-card {
+  background: var(--white);
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-shadow: var(--shadow);
+}
+
+.pipeline-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 2px;
+}
+
+.pipeline-card-job {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.pipeline-card-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
