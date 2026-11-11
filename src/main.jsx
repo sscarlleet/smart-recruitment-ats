@@ -7,7 +7,7 @@ import './styles/global.css';
 import './styles/dashboard.css';
 import './styles/forms.css';
 
-// Entry point: uses HashRouter so GitHub Pages routing works correctly
+// HashRouter is used so the app works on GitHub Pages (static hosting)
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HashRouter>
@@ -17,4 +17,3 @@ createRoot(document.getElementById('root')).render(
     </HashRouter>
   </StrictMode>
 );
-
