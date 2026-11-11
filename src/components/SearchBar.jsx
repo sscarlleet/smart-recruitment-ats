@@ -1,7 +1,6 @@
 import { Search } from 'lucide-react';
 
-// SearchBar – a text input with a search icon inside it
-// onChange receives the new string value
+// SearchBar – a text input with a search icon
 function SearchBar({ value, onChange, placeholder }) {
   return (
     <div style={{ position:'relative', display:'inline-flex', alignItems:'center' }}>

@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Users, GitBranch,
-  Calendar, FileText, BarChart2, Bell, Settings,
+  Calendar, FileText, BarChart2, Bell,
   LogOut, Menu, X, ChevronRight
 } from 'lucide-react';
 import '../styles/dashboard.css';
@@ -11,27 +11,27 @@ import '../styles/dashboard.css';
 // Nav links for each role
 const NAV_CONFIG = {
   hr: [
-    { label: 'Dashboard',   icon: LayoutDashboard, path: '/hr'            },
-    { label: 'Jobs',        icon: Briefcase,        path: '/hr/jobs'       },
-    { label: 'Candidates',  icon: Users,            path: '/hr/candidates' },
-    { label: 'Pipeline',    icon: GitBranch,        path: '/hr/pipeline'   },
-    { label: 'Interviews',  icon: Calendar,         path: '/hr/interviews' },
-    { label: 'Offers',      icon: FileText,         path: '/hr/offers'     },
-    { label: 'Analytics',   icon: BarChart2,        path: '/hr/analytics'  },
-    { label: 'Notifications',icon: Bell,            path: '/hr/notifications'},
+    { label: 'Dashboard',    icon: LayoutDashboard, path: '/hr'            },
+    { label: 'Jobs',         icon: Briefcase,        path: '/hr/jobs'       },
+    { label: 'Candidates',   icon: Users,            path: '/hr/candidates' },
+    { label: 'Pipeline',     icon: GitBranch,        path: '/hr/pipeline'   },
+    { label: 'Interviews',   icon: Calendar,         path: '/hr/interviews' },
+    { label: 'Offers',       icon: FileText,         path: '/hr/offers'     },
+    { label: 'Analytics',    icon: BarChart2,        path: '/hr/analytics'  },
+    { label: 'Notifications',icon: Bell,             path: '/hr/notifications'},
   ],
   admin: [
-    { label: 'Dashboard',   icon: LayoutDashboard, path: '/admin'              },
-    { label: 'Users',       icon: Users,            path: '/admin/users'        },
-    { label: 'Jobs',        icon: Briefcase,        path: '/admin/jobs'         },
-    { label: 'Analytics',   icon: BarChart2,        path: '/admin/analytics'    },
-    { label: 'Notifications',icon: Bell,            path: '/admin/notifications'},
+    { label: 'Dashboard',    icon: LayoutDashboard, path: '/admin'              },
+    { label: 'Users',        icon: Users,            path: '/admin/users'        },
+    { label: 'Jobs',         icon: Briefcase,        path: '/admin/jobs'         },
+    { label: 'Analytics',    icon: BarChart2,        path: '/admin/analytics'    },
+    { label: 'Notifications',icon: Bell,             path: '/admin/notifications'},
   ],
   candidate: [
-    { label: 'Dashboard',    icon: LayoutDashboard, path: '/candidate'              },
-    { label: 'Browse Jobs',  icon: Briefcase,        path: '/candidate/jobs'         },
-    { label: 'My Applications',icon: FileText,       path: '/candidate/applications' },
-    { label: 'Notifications', icon: Bell,            path: '/candidate/notifications'},
+    { label: 'Dashboard',     icon: LayoutDashboard, path: '/candidate'              },
+    { label: 'Browse Jobs',   icon: Briefcase,        path: '/candidate/jobs'         },
+    { label: 'My Applications',icon: FileText,        path: '/candidate/applications' },
+    { label: 'Notifications',  icon: Bell,            path: '/candidate/notifications'},
   ],
 };
 
@@ -59,14 +59,13 @@ function AppLayout({ children }) {
   const links = NAV_CONFIG[user?.role] || [];
   const title = PAGE_TITLES[location.pathname] || 'SmartATS';
 
-  // Get initials for the avatar (e.g. "Sara HR" → "SH")
   function getInitials(name) {
     return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
   }
 
   function handleNav(path) {
     navigate(path);
-    setOpen(false); // close sidebar on mobile after clicking
+    setOpen(false);
   }
 
   function handleLogout() {
@@ -76,21 +75,16 @@ function AppLayout({ children }) {
 
   return (
     <div className="app-layout">
-
-      {/* Mobile overlay – clicking it closes the sidebar */}
       {open && <div className="sidebar-overlay" onClick={() => setOpen(false)} />}
 
-      {/* Sidebar */}
       <aside className={`sidebar ${open ? 'open' : ''}`}>
         <div className="sidebar-brand">
           <h2>SmartATS</h2>
           <p>Recruitment System</p>
         </div>
-
         <div className="sidebar-section">Menu</div>
-
         {links.map((link) => {
-          const Icon    = link.icon;
+          const Icon = link.icon;
           const isActive = location.pathname === link.path;
           return (
             <button key={link.path}
@@ -102,17 +96,13 @@ function AppLayout({ children }) {
             </button>
           );
         })}
-
-        {/* Logout at the bottom */}
         <div className="sidebar-footer">
           <button className="sidebar-link" onClick={handleLogout}>
-            <LogOut size={16} />
-            Logout
+            <LogOut size={16} /> Logout
           </button>
         </div>
       </aside>
 
-      {/* Top navbar */}
       <header className="topnav">
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
           <button className="topnav-burger" onClick={() => setOpen(!open)}>
@@ -120,7 +110,6 @@ function AppLayout({ children }) {
           </button>
           <span className="topnav-title">{title}</span>
         </div>
-
         <div className="topnav-right">
           <div className="user-chip">
             <div className="user-avatar">{getInitials(user?.name || 'U')}</div>
@@ -132,10 +121,7 @@ function AppLayout({ children }) {
         </div>
       </header>
 
-      {/* Page content */}
-      <main className="main-area">
-        {children}
-      </main>
+      <main className="main-area">{children}</main>
     </div>
   );
 }

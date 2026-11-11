@@ -2,7 +2,6 @@ import { createContext, useContext, useState } from 'react';
 import { DEMO_USERS } from '../data/sampleData';
 
 // AuthContext shares login state across the whole app.
-// Any component can read the current user by calling useAuth().
 const AuthContext = createContext(null);
 
 // AuthProvider wraps the app and stores the logged-in user.
@@ -45,7 +44,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Custom hook so components don't need to import AuthContext directly
+// Hook so components can read auth state
 export function useAuth() {
   return useContext(AuthContext);
 }

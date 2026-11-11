@@ -1,6 +1,4 @@
-// sampleData.js
-// All fake data used across the app.
-// Replace these with real API calls later.
+// sampleData.js – All fake data used across the app.
 
 // ── DEMO USERS ──────────────────────────────────────────
 export const DEMO_USERS = [
@@ -227,7 +225,6 @@ export const SAMPLE_NOTIFICATIONS = [
 ];
 
 // ── PIPELINE STAGES ──────────────────────────────────────
-// Order matters – candidates move left to right
 export const PIPELINE_STAGES = [
   'Applied', 'Screening', 'Shortlisted', 'Interview', 'Selected', 'Offered', 'Rejected'
 ];
@@ -244,9 +241,13 @@ export const ANALYTICS_DATA = {
     { label: 'Rejected',    value: 6  },
   ],
   jobsByDepartment: [
-    { label: 'Engineering',      value: 3 },
+    { label: 'Engineering',      value: 5 },
     { label: 'Human Resources',  value: 1 },
     { label: 'Design',           value: 1 },
+    { label: 'Analytics',        value: 1 },
+    { label: 'Marketing',        value: 1 },
+    { label: 'Security',         value: 1 },
+    { label: 'Product',          value: 1 },
   ],
   monthlyApplications: [
     { month: 'Sep', count: 5  },

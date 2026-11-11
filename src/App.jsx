@@ -32,7 +32,7 @@ function App() {
   const { user } = useAuth();
 
   // Which auth screen to show when not logged in
-  const [authScreen, setAuthScreen] = useState('login'); // 'login' | 'register' | 'forgot'
+  const [authScreen, setAuthScreen] = useState('login');
 
   // If not logged in, show auth screens
   if (!user) {
