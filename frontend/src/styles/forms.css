@@ -1,0 +1,178 @@
+/* =============================================
+   AUTH PAGES (Login, Register, Forgot Password)
+   ============================================= */
+
+/* Full-screen background gradient */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #0ea5e9 100%);
+  padding: 24px;
+}
+
+/* White card in the center */
+.auth-card {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 420px;
+  padding: 36px 32px;
+}
+
+/* Logo / branding at top of auth card */
+.auth-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-logo h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.auth-logo p {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-top: 4px;
+}
+
+/* Auth form heading */
+.auth-heading {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 4px;
+}
+
+.auth-subheading {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-bottom: 24px;
+}
+
+/* Login button spans full width */
+.btn-auth {
+  width: 100%;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+
+.btn-auth:hover { background: var(--primary-light); }
+
+/* Demo credentials box */
+.demo-box {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 20px;
+}
+
+.demo-box h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.demo-credential {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--gray-700);
+  padding: 3px 0;
+}
+
+.demo-use-btn {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--accent);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Link below form */
+.auth-footer-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+.auth-footer-link a {
+  color: var(--primary-light);
+  font-weight: 500;
+}
+
+/* Role selector chips */
+.role-chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.role-chip {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  text-align: center;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-500);
+  background: var(--white);
+  transition: all 0.15s;
+}
+
+.role-chip:hover {
+  border-color: var(--primary-light);
+  color: var(--primary-light);
+}
+
+.role-chip.selected {
+  border-color: var(--primary);
+  background: #eff6ff;
+  color: var(--primary);
+}
+
+/* Password input with toggle */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper .form-control {
+  padding-right: 40px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  display: flex;
+}
+
