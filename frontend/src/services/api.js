@@ -1,4 +1,4 @@
-const API_URL = 'https://smart-recruitment-ats.onrender.com/';
+const API_URL = 'https://smart-recruitment-ats.onrender.com';
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('ats_token');
