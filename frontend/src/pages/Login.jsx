@@ -13,26 +13,29 @@ function Login({ onGoRegister, onGoForgot }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError('');
+async function handleSubmit(e) {
+  e.preventDefault();
+  setError('');
 
-    if (!email || !password) {
-      setError('Please fill in all fields.');
-      return;
-    }
+  if (!email.trim() || !password) {
+    setError('Please fill in all fields.');
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    const result = await login(email, password);
+  try {
+    const result = await login(email.trim(), password);
 
     if (!result.success) {
       setError(result.message);
     }
-
+  } catch (error) {
+    setError('Unable to connect to the server. Please try again.');
+  } finally {
     setLoading(false);
   }
-
+}
   return (
     <div className="auth-page">
       <div className="auth-card">
