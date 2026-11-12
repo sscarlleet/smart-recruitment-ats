@@ -19,9 +19,14 @@ const PORT = process.env.PORT || 5000;
 // Security middleware
 app.use(helmet());
 
+const allowedOrigins = [
+  'https://sscarlleet.github.io',
+  'http://localhost:5173'
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     credentials: true
   })
 );
