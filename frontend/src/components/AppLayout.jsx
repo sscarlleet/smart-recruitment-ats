@@ -56,7 +56,7 @@ function AppLayout({ children }) {
   const location          = useLocation();
   const [open, setOpen]   = useState(false);
 
-  const links = NAV_CONFIG[user?.role] || [];
+  const links = NAV_CONFIG[user?.role?.toLowerCase()] || [];
   const title = PAGE_TITLES[location.pathname] || 'SmartATS';
 
   function getInitials(name) {
