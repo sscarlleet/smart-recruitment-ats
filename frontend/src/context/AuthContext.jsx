@@ -6,7 +6,18 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   function loadUser() {
     try {
-      return JSON.parse(localStorage.getItem('ats_user')) || null;
+      const savedUser = JSON.parse(localStorage.getItem('ats_user'));
+
+      if (!savedUser) return null;
+
+      const normalizedUser = {
+        ...savedUser,
+        role: savedUser.role?.trim().toLowerCase()
+      };
+
+      localStorage.setItem('ats_user', JSON.stringify(normalizedUser));
+
+      return normalizedUser;
     } catch {
       return null;
     }
@@ -21,9 +32,15 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email, password })
       });
 
+      const safeUser = {
+        ...data.user,
+        role: data.user.role?.trim().toLowerCase()
+      };
+
       localStorage.setItem('ats_token', data.token);
-      localStorage.setItem('ats_user', JSON.stringify(data.user));
-      setUser(data.user);
+      localStorage.setItem('ats_user', JSON.stringify(safeUser));
+
+      setUser(safeUser);
 
       return { success: true };
     } catch (error) {
