@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 
+import CandidateProfile from './pages/CandidateProfile';
 import HRDashboard from './pages/HRDashboard';
 import Jobs from './pages/Jobs';
 import Candidates from './pages/Candidates';
@@ -77,6 +78,7 @@ function App() {
 
         {role === 'candidate' && (
           <>
+            <Route path="/candidate/profile" element={<CandidateProfile />} />
             <Route path="/candidate" element={<CandidateDashboard />} />
             <Route path="/candidate/jobs" element={<BrowseJobs />} />
             <Route path="/candidate/applications" element={<MyApplications />} />

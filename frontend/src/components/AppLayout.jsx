@@ -4,9 +4,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Users, GitBranch,
   Calendar, FileText, BarChart2, Bell,
-  LogOut, Menu, X, ChevronRight
+  LogOut, Menu, X, ChevronRight, UserCircle
 } from 'lucide-react';
 import '../styles/dashboard.css';
+
 
 // Nav links for each role
 const NAV_CONFIG = {
@@ -31,7 +32,9 @@ const NAV_CONFIG = {
     { label: 'Dashboard',     icon: LayoutDashboard, path: '/candidate'              },
     { label: 'Browse Jobs',   icon: Briefcase,        path: '/candidate/jobs'         },
     { label: 'My Applications',icon: FileText,        path: '/candidate/applications' },
+    { label: 'Profile',       icon: UserCircle,      path: '/candidate/profile'      },
     { label: 'Notifications',  icon: Bell,            path: '/candidate/notifications'},
+    
   ],
 };
 
@@ -47,6 +50,7 @@ const PAGE_TITLES = {
   '/candidate': 'My Dashboard', '/candidate/jobs': 'Browse Jobs',
   '/candidate/applications': 'My Applications',
   '/candidate/notifications': 'Notifications',
+  '/candidate/profile': 'My Profile',
 };
 
 // Sidebar + Topnav layout used by all role dashboards
