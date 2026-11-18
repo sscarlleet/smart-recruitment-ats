@@ -1,37 +1,54 @@
-// jobService.js
-// All API calls related to jobs go here.
-// Currently returns sample data. Replace with real fetch() calls later.
+import { apiRequest } from './api';
 
-import { SAMPLE_JOBS } from '../data/sampleData';
-
-// Get all jobs from the backend
-export async function getJobs() {
-  // TODO: replace with → const res = await fetch('/api/jobs'); return res.json();
-  return Promise.resolve(SAMPLE_JOBS);
+export async function getJobs(search = '') {
+  const query = search ? `?search=${encodeURIComponent(search)}` : '';
+  const data = await apiRequest(`/jobs${query}`);
+  return data.jobs || [];
 }
 
-// Get a single job by ID
+export async function getManageableJobs() {
+  const data = await apiRequest('/jobs/manage/all');
+  return data.jobs || [];
+}
+
 export async function getJobById(id) {
-  // TODO: replace with → const res = await fetch(`/api/jobs/${id}`); return res.json();
-  const job = SAMPLE_JOBS.find((j) => j.id === id);
-  return Promise.resolve(job || null);
+  const data = await apiRequest(`/jobs/${id}`);
+  return data.job || null;
 }
 
-// Create a new job
 export async function createJob(jobData) {
-  // TODO: replace with → const res = await fetch('/api/jobs', { method:'POST', body: JSON.stringify(jobData) });
-  return Promise.resolve({ ...jobData, id: `J${Date.now()}` });
+  const data = await apiRequest('/jobs', {
+    method: 'POST',
+    body: JSON.stringify(jobData)
+  });
+  return data.job;
 }
 
-// Update an existing job
 export async function updateJob(id, jobData) {
-  // TODO: replace with → const res = await fetch(`/api/jobs/${id}`, { method:'PUT', body: JSON.stringify(jobData) });
-  return Promise.resolve({ ...jobData, id });
+  const data = await apiRequest(`/jobs/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(jobData)
+  });
+  return data.job;
 }
 
-// Delete a job
-export async function deleteJob(id) {
-  // TODO: replace with → await fetch(`/api/jobs/${id}`, { method:'DELETE' });
-  return Promise.resolve({ success: true });
+export async function publishJob(id) {
+  const data = await apiRequest(`/jobs/${id}/publish`, {
+    method: 'PATCH'
+  });
+  return data.job;
 }
 
+export async function closeJob(id) {
+  const data = await apiRequest(`/jobs/${id}/close`, {
+    method: 'PATCH'
+  });
+  return data.job;
+}
+
+export async function archiveJob(id) {
+  const data = await apiRequest(`/jobs/${id}/archive`, {
+    method: 'PATCH'
+  });
+  return data.job;
+}

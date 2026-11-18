@@ -1,19 +1,37 @@
-
 const prisma = require('../config/prisma');
+
 const {
   createJobSchema,
   updateJobSchema
 } = require('../validators/job.validator');
 
-// Helper: pagination values
 const getPagination = (query) => {
   const page = Math.max(1, parseInt(query.page, 10) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(query.limit, 10) || 10));
 
-  return { page, limit, skip: (page - 1) * limit };
+  return {
+    page,
+    limit,
+    skip: (page - 1) * limit
+  };
 };
 
-// HR/Admin: Create a job
+// HR sees only their own jobs. Admin sees all jobs.
+const getJobAccessWhere = (user, jobId) => {
+  const where = {};
+
+  if (jobId) {
+    where.id = jobId;
+  }
+
+  if (user.role === 'HR') {
+    where.createdById = user.id;
+  }
+
+  return where;
+};
+
+// Create job
 const createJob = async (req, res, next) => {
   try {
     const validation = createJobSchema.safeParse(req.body);
@@ -43,7 +61,7 @@ const createJob = async (req, res, next) => {
   }
 };
 
-// Public: List published jobs
+// Public: Published jobs
 const getPublishedJobs = async (req, res, next) => {
   try {
     const { page, limit, skip } = getPagination(req.query);
@@ -85,7 +103,7 @@ const getPublishedJobs = async (req, res, next) => {
   }
 };
 
-// Public: View one published job
+// Public: Single published job
 const getPublishedJobById = async (req, res, next) => {
   try {
     const job = await prisma.job.findFirst({
@@ -102,29 +120,42 @@ const getPublishedJobById = async (req, res, next) => {
       });
     }
 
-    return res.status(200).json({ success: true, job });
+    return res.status(200).json({
+      success: true,
+      job
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// HR/Admin: List all jobs, including drafts and closed jobs
+// HR: Own jobs. Admin: All jobs.
 const getManageableJobs = async (req, res, next) => {
   try {
     const { page, limit, skip } = getPagination(req.query);
 
+    const where = getJobAccessWhere(req.user);
+
     const [jobs, total] = await Promise.all([
       prisma.job.findMany({
+        where,
         include: {
           createdBy: {
-            select: { id: true, name: true, email: true }
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
           }
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: {
+          createdAt: 'desc'
+        },
         skip,
         take: limit
       }),
-      prisma.job.count()
+
+      prisma.job.count({ where })
     ]);
 
     return res.status(200).json({
@@ -142,7 +173,7 @@ const getManageableJobs = async (req, res, next) => {
   }
 };
 
-// HR/Admin: Update job details
+// Update job
 const updateJob = async (req, res, next) => {
   try {
     const validation = updateJobSchema.safeParse(req.body);
@@ -155,14 +186,16 @@ const updateJob = async (req, res, next) => {
       });
     }
 
-    const existingJob = await prisma.job.findUnique({
-      where: { id: req.params.id }
+    const where = getJobAccessWhere(req.user, req.params.id);
+
+    const existingJob = await prisma.job.findFirst({
+      where
     });
 
     if (!existingJob) {
       return res.status(404).json({
         success: false,
-        message: 'Job not found'
+        message: 'Job not found or you do not have access'
       });
     }
 
@@ -174,7 +207,9 @@ const updateJob = async (req, res, next) => {
     }
 
     const job = await prisma.job.update({
-      where: { id: req.params.id },
+      where: {
+        id: existingJob.id
+      },
       data: validation.data
     });
 
@@ -188,17 +223,17 @@ const updateJob = async (req, res, next) => {
   }
 };
 
-// HR/Admin: Publish a draft or reopen a closed job
+// Publish job
 const publishJob = async (req, res, next) => {
   try {
-    const existingJob = await prisma.job.findUnique({
-      where: { id: req.params.id }
+    const existingJob = await prisma.job.findFirst({
+      where: getJobAccessWhere(req.user, req.params.id)
     });
 
     if (!existingJob) {
       return res.status(404).json({
         success: false,
-        message: 'Job not found'
+        message: 'Job not found or you do not have access'
       });
     }
 
@@ -217,7 +252,7 @@ const publishJob = async (req, res, next) => {
     }
 
     const job = await prisma.job.update({
-      where: { id: req.params.id },
+      where: { id: existingJob.id },
       data: {
         status: 'PUBLISHED',
         publishedAt: new Date()
@@ -234,17 +269,17 @@ const publishJob = async (req, res, next) => {
   }
 };
 
-// HR/Admin: Close a published job
+// Close job
 const closeJob = async (req, res, next) => {
   try {
-    const existingJob = await prisma.job.findUnique({
-      where: { id: req.params.id }
+    const existingJob = await prisma.job.findFirst({
+      where: getJobAccessWhere(req.user, req.params.id)
     });
 
     if (!existingJob) {
       return res.status(404).json({
         success: false,
-        message: 'Job not found'
+        message: 'Job not found or you do not have access'
       });
     }
 
@@ -256,7 +291,7 @@ const closeJob = async (req, res, next) => {
     }
 
     const job = await prisma.job.update({
-      where: { id: req.params.id },
+      where: { id: existingJob.id },
       data: { status: 'CLOSED' }
     });
 
@@ -270,17 +305,17 @@ const closeJob = async (req, res, next) => {
   }
 };
 
-// HR/Admin: Archive a job that is not currently published
+// Archive job
 const archiveJob = async (req, res, next) => {
   try {
-    const existingJob = await prisma.job.findUnique({
-      where: { id: req.params.id }
+    const existingJob = await prisma.job.findFirst({
+      where: getJobAccessWhere(req.user, req.params.id)
     });
 
     if (!existingJob) {
       return res.status(404).json({
         success: false,
-        message: 'Job not found'
+        message: 'Job not found or you do not have access'
       });
     }
 
@@ -299,7 +334,7 @@ const archiveJob = async (req, res, next) => {
     }
 
     const job = await prisma.job.update({
-      where: { id: req.params.id },
+      where: { id: existingJob.id },
       data: { status: 'ARCHIVED' }
     });
 

@@ -1,88 +1,210 @@
-import { useState } from 'react';
-import { SAMPLE_CANDIDATES, SAMPLE_JOBS, PIPELINE_STAGES } from '../data/sampleData';
+import { useEffect, useState } from 'react';
+import { apiRequest } from '../services/api';
 import '../styles/pipeline.css';
 
-// Pipeline – Kanban-style board showing candidates in each stage
+const PIPELINE_STAGES = [
+  'APPLIED',
+  'SCREENING',
+  'INTERVIEW',
+  'SELECTED',
+  'OFFERED',
+  'REJECTED',
+  'WITHDRAWN'
+];
+
+const STAGE_LABELS = {
+  APPLIED: 'Applied',
+  SCREENING: 'Screening',
+  INTERVIEW: 'Interview',
+  SELECTED: 'Selected',
+  OFFERED: 'Offered',
+  REJECTED: 'Rejected',
+  WITHDRAWN: 'Withdrawn'
+};
+
+const STAGE_COLORS = {
+  APPLIED: '#3b82f6',
+  SCREENING: '#f59e0b',
+  INTERVIEW: '#f97316',
+  SELECTED: '#10b981',
+  OFFERED: '#0d9488',
+  REJECTED: '#ef4444',
+  WITHDRAWN: '#64748b'
+};
+
+const ALLOWED_TRANSITIONS = {
+  APPLIED: ['SCREENING', 'REJECTED'],
+  SCREENING: ['INTERVIEW', 'REJECTED'],
+  INTERVIEW: ['SELECTED', 'REJECTED'],
+  SELECTED: ['OFFERED', 'REJECTED'],
+  OFFERED: [],
+  REJECTED: [],
+  WITHDRAWN: []
+};
+
 function Pipeline() {
-  const [candidates, setCandidates] = useState(SAMPLE_CANDIDATES);
+  const [candidates, setCandidates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
-  // Move a candidate to a new stage
-  function moveCandidate(candidateId, newStage) {
-    setCandidates((prev) =>
-      prev.map((c) => c.id === candidateId ? { ...c, stage: newStage } : c)
-    );
+  async function loadCandidates() {
+    try {
+      setErrorMsg('');
+
+      const firstPage = await apiRequest(
+        '/applications/manage/all?page=1&limit=50'
+      );
+
+      let allApplications = firstPage.applications || [];
+      const totalPages = firstPage.pagination?.totalPages || 1;
+
+      for (let page = 2; page <= totalPages; page++) {
+        const data = await apiRequest(
+          `/applications/manage/all?page=${page}&limit=50`
+        );
+
+        allApplications = allApplications.concat(
+          data.applications || []
+        );
+      }
+
+      setCandidates(allApplications);
+    } catch (error) {
+      setErrorMsg(error.message || 'Unable to load recruitment pipeline.');
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // Get job title from job id
-  function getJobTitle(jobId) {
-    return SAMPLE_JOBS.find((j) => j.id === jobId)?.title || '—';
-  }
+  useEffect(() => {
+    loadCandidates();
+  }, []);
 
-  // Map stage to a colour used for the column header
-  const stageColors = {
-    Applied:'#3b82f6', Screening:'#f59e0b', Shortlisted:'#8b5cf6',
-    Interview:'#f97316', Selected:'#10b981', Offered:'#0d9488', Rejected:'#ef4444',
-  };
+  async function moveCandidate(applicationId, newStage) {
+    try {
+      setUpdatingId(applicationId);
+      setErrorMsg('');
+      setSuccessMsg('');
+
+      await apiRequest(
+        `/applications/manage/${applicationId}/status`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ status: newStage })
+        }
+      );
+
+      setSuccessMsg('Application stage updated successfully.');
+      await loadCandidates();
+    } catch (error) {
+      setErrorMsg(error.message || 'Unable to update application stage.');
+    } finally {
+      setUpdatingId(null);
+    }
+  }
 
   return (
     <div>
+      {successMsg && (
+        <div className="success-banner">{successMsg}</div>
+      )}
+
+      {errorMsg && (
+        <div className="error-banner">{errorMsg}</div>
+      )}
+
       <div className="page-header">
         <div>
           <h1 className="page-title">Recruitment Pipeline</h1>
-          <p className="page-subtitle">Drag-and-drop style board – use the arrow buttons to move candidates</p>
+          <p className="page-subtitle">
+            Track and manage candidate application stages.
+          </p>
         </div>
       </div>
 
-      {/* Board */}
-      <div className="pipeline-board">
-        {PIPELINE_STAGES.map((stage) => {
-          const columnCandidates = candidates.filter((c) => c.stage === stage);
-          return (
-            <div key={stage} className="pipeline-col">
+      {loading ? (
+        <div className="empty-state">
+          <p>Loading recruitment pipeline...</p>
+        </div>
+      ) : (
+        <div className="pipeline-board">
+          {PIPELINE_STAGES.map((stage) => {
+            const columnCandidates = candidates.filter(
+              (candidate) => candidate.status === stage
+            );
 
-              {/* Column header */}
-              <div className="pipeline-col-header" style={{ borderTopColor: stageColors[stage] }}>
-                <span className="pipeline-col-title">{stage}</span>
-                <span className="pipeline-col-count">{columnCandidates.length}</span>
-              </div>
+            return (
+              <div key={stage} className="pipeline-col">
+                <div
+                  className="pipeline-col-header"
+                  style={{ borderTopColor: STAGE_COLORS[stage] }}
+                >
+                  <span className="pipeline-col-title">
+                    {STAGE_LABELS[stage]}
+                  </span>
 
-              {/* Candidate cards */}
-              <div className="pipeline-cards">
-                {columnCandidates.length === 0 && (
-                  <div className="pipeline-empty">No candidates</div>
-                )}
-                {columnCandidates.map((c) => (
-                  <div key={c.id} className="pipeline-card">
-                    <div className="pipeline-card-name">{c.name}</div>
-                    <div className="pipeline-card-job">{getJobTitle(c.appliedJob)}</div>
+                  <span className="pipeline-col-count">
+                    {columnCandidates.length}
+                  </span>
+                </div>
 
-                    {/* Move buttons */}
-                    <div className="pipeline-card-actions">
-                      {/* Move backward */}
-                      {PIPELINE_STAGES.indexOf(stage) > 0 && (
-                        <button className="btn btn-ghost btn-sm"
-                          onClick={() => moveCandidate(c.id, PIPELINE_STAGES[PIPELINE_STAGES.indexOf(stage) - 1])}>
-                          ← Back
-                        </button>
-                      )}
-                      {/* Move forward */}
-                      {PIPELINE_STAGES.indexOf(stage) < PIPELINE_STAGES.length - 1 && (
-                        <button className="btn btn-primary btn-sm"
-                          onClick={() => moveCandidate(c.id, PIPELINE_STAGES[PIPELINE_STAGES.indexOf(stage) + 1])}>
-                          Next →
-                        </button>
-                      )}
+                <div className="pipeline-cards">
+                  {columnCandidates.length === 0 && (
+                    <div className="pipeline-empty">
+                      No applications
                     </div>
-                  </div>
-                ))}
+                  )}
+
+                  {columnCandidates.map((candidate) => (
+                    <div key={candidate.id} className="pipeline-card">
+                      <div className="pipeline-card-name">
+                        {candidate.candidate?.name || 'Unknown Candidate'}
+                      </div>
+
+                      <div className="pipeline-card-job">
+                        {candidate.job?.title || 'Unknown Job'}
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: '#64748b',
+                          marginTop: 5
+                        }}
+                      >
+                        {candidate.candidate?.email || ''}
+                      </div>
+
+                      <div className="pipeline-card-actions">
+                        {ALLOWED_TRANSITIONS[stage].map((nextStage) => (
+                          <button
+                            key={nextStage}
+                            className="btn btn-primary btn-sm"
+                            disabled={updatingId === candidate.id}
+                            onClick={() =>
+                              moveCandidate(candidate.id, nextStage)
+                            }
+                          >
+                            {updatingId === candidate.id
+                              ? 'Updating...'
+                              : nextStage === 'REJECTED'
+                                ? 'Reject'
+                                : `Move to ${STAGE_LABELS[nextStage]}`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
 export default Pipeline;
-
